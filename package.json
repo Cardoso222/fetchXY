@@ -1,13 +1,18 @@
 {
-  "name": "r",
+  "name": "fetchx",
   "version": "0.1.0",
-  "description": "",
+  "description": "A Fetch API wrapper with retries and timeout",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc"
   },
-  "keywords": [],
+  "keywords": [
+    "fetch",
+    "api",
+    "retries",
+    "timeout"
+  ],
   "author": "Paulo Cardoso",
   "license": "ISC",
   "devDependencies": {

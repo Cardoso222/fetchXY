@@ -4,6 +4,7 @@ export interface IRequestConfig {
     headers?: Record<string, string>;
     data?: any;
     retries?: number;
+    timeout?: number;
 }
 
 export interface IResponse {
@@ -11,4 +12,14 @@ export interface IResponse {
     status: number;
     data: any;
     retries?: number;
+    success?: boolean;
+    message?: string;
 }
+
+export interface IRequestError {
+    status: number;
+    retries?: number;
+    success?: boolean;
+    message?: string;
+}
+

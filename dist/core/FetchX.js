@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.R = void 0;
+exports.FetchX = void 0;
 const InternalServerError_1 = require("../types/exceptions/InternalServerError");
 const TimeoutError_1 = require("../types/exceptions/TimeoutError");
-class R {
+class FetchX {
     constructor(defaultConfig) {
         this.defaultConfig = defaultConfig || {};
     }
@@ -63,4 +63,4 @@ class R {
         return this.request(Object.assign(Object.assign({}, config), { url, method: 'DELETE' }));
     }
 }
-exports.R = R;
+exports.FetchX = FetchX;

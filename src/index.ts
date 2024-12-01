@@ -1,3 +1,4 @@
-import { R as RClass } from './core/R';
+import { FetchX as FetchXClass } from './core/FetchX';
 
-export default new RClass();
+export default new FetchXClass();
+
