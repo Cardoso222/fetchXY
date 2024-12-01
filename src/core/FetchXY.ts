@@ -57,6 +57,10 @@ export class FetchXY {
         return this.request({...config, url, method: 'PUT'});
     }
 
+    patch(url: string, config: IRequestConfig = {}) {
+        return this.request({...config, url, method: 'PATCH'});
+    }
+
     delete(url: string, config: IRequestConfig = {}) {
         return this.request({...config, url, method: 'DELETE'});
     }

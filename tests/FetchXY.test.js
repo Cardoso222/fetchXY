@@ -54,6 +54,24 @@ const FetchXY = require('../dist/index').default;
     console.log('✅ PUT method test passed!');
 })();
 
+(async function testRPatch() {
+    global.fetch = async (url, options) => {
+        assert.strictEqual(options.method, 'PATCH', 'Incorrect HTTP Method');
+        assert.strictEqual(url, 'https://exampleDomain.com', 'Incorrect URL');
+
+        return {
+            json: async () => ({ success: true }),
+            status: 200,
+            headers: new Map(),
+        };
+    };
+
+    const response = await FetchXY.patch('https://exampleDomain.com', { data: { fact: 'Cats are awesome' } });
+    assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
+
+    console.log('✅ PATCH method test passed!');
+})();
+
 (async function testRDelete() {
     global.fetch = async (url, options) => {
         assert.strictEqual(options.method, 'DELETE', 'Incorrect HTTP Method');
