@@ -2,7 +2,7 @@ import { IRequestConfig, IRequestError, IResponse } from "../types";
 import { InternalServerError } from "../types/exceptions/InternalServerError";
 import { TimeoutError } from "../types/exceptions/TimeoutError";
 
-export class FetchX {
+export class FetchXY {
     private defaultConfig: IRequestConfig;
 
     constructor(defaultConfig?: IRequestConfig) {

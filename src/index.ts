@@ -1,4 +1,4 @@
-import { FetchX as FetchXClass } from './core/FetchX';
+import { FetchXY as FetchXYClass } from './core/FetchXY';
 
-export default new FetchXClass();
+export default new FetchXYClass();
 

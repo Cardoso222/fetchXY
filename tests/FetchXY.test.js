@@ -1,5 +1,5 @@
 const assert = require('assert');
-const FetchX = require('../dist/index').default;
+const FetchXY = require('../dist/index').default;
 
 (async function testRGet() {
     global.fetch = async (url, options) => {
@@ -12,7 +12,7 @@ const FetchX = require('../dist/index').default;
         };
     };
 
-    const response = await FetchX.get('https://exampleDomain.com');
+    const response = await FetchXY.get('https://exampleDomain.com');
     assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
 
     console.log('✅ GET method test passed!');
@@ -30,7 +30,7 @@ const FetchX = require('../dist/index').default;
         };
     };
 
-    const response = await FetchX.post('https://exampleDomain.com', { data: { fact: 'Cats are awesome' } });
+    const response = await FetchXY.post('https://exampleDomain.com', { data: { fact: 'Cats are awesome' } });
     assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
 
     console.log('✅ POST method test passed!');
@@ -48,7 +48,7 @@ const FetchX = require('../dist/index').default;
         };
     };
 
-    const response = await FetchX.put('https://exampleDomain.com', { data: { fact: 'Cats are awesome' } });
+    const response = await FetchXY.put('https://exampleDomain.com', { data: { fact: 'Cats are awesome' } });
     assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
 
     console.log('✅ PUT method test passed!');
@@ -66,7 +66,7 @@ const FetchX = require('../dist/index').default;
         };
     };
 
-    const response = await FetchX.delete('https://exampleDomain.com');
+    const response = await FetchXY.delete('https://exampleDomain.com');
     assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
 
     console.log('✅ DELETE method test passed!');
@@ -84,7 +84,7 @@ const FetchX = require('../dist/index').default;
         };
     };
 
-    const response = await FetchX.get('https://exampleDomain.com', { retries: 2 });
+    const response = await FetchXY.get('https://exampleDomain.com', { retries: 2 });
     assert.strictEqual(response.retries, 2, 'Incorrect number of retries');
 
     console.log('✅ Retries test passed!');
@@ -95,7 +95,7 @@ const FetchX = require('../dist/index').default;
         await new Promise(resolve => setTimeout(resolve, 10000));
     };
 
-    const response = await FetchX.get('https://exampleDomain.com', { timeout: 100 });
+    const response = await FetchXY.get('https://exampleDomain.com', { timeout: 100 });
     assert.strictEqual(response.status, 408, 'Incorrect HTTP Status');
     assert.strictEqual(response.retries, 0, 'Incorrect number of retries');
     assert.strictEqual(response.data, undefined, 'Incorrect data');
@@ -112,7 +112,7 @@ const FetchX = require('../dist/index').default;
         };
     };
 
-    const response = await FetchX.get('https://exampleDomain.com', { retries: 2 });
+    const response = await FetchXY.get('https://exampleDomain.com', { retries: 2 });
     assert.strictEqual(response.status, 500, 'Incorrect HTTP Status');
     assert.strictEqual(response.retries, 2, 'Incorrect number of retries');
 

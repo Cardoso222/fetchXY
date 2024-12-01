@@ -1,6 +1,6 @@
-# FetchX
+# FetchXY
 
-FetchX is a lightweight and flexible HTTP client for TypeScript/JavaScript applications, providing a simple interface for making HTTP requests with built-in timeout handling, retries, and error management.
+FetchXY is a lightweight and flexible HTTP client for TypeScript/JavaScript applications, providing a simple interface for making HTTP requests with built-in timeout handling, retries, and error management.
 
 ## Features
 
@@ -14,7 +14,7 @@ FetchX is a lightweight and flexible HTTP client for TypeScript/JavaScript appli
 ## Installation
 
 ```bash
-npm install fetchx
+npm install fetch-xy
 ```
 
 ## Usage
@@ -22,9 +22,9 @@ npm install fetchx
 ### Basic Example
 
 ```typescript
-import { FetchX } from 'fetchx';
+import { FetchXY } from 'fetch-xy';
 
-const client = new FetchX();
+const client = new FetchXY();
 
 // Making a GET request
 const response = await client.get('https://api.example.com/data');
@@ -41,7 +41,7 @@ const postResponse = await client.post('https://api.example.com/data', {
 ### Configuration
 
 ```typescript
-const client = new FetchX({
+const client = new FetchXY({
   timeout: 5000, // 5 seconds
   retries: 3,
   headers: {
@@ -69,8 +69,8 @@ const client = new FetchX({
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/cardoso222/fetchx.git
-cd fetchx
+git clone https://github.com/cardoso222/FetchXY.git
+cd FetchXY
 ```
 
 2. Install dependencies:
