@@ -25,7 +25,7 @@ export default class FetchXY {
                 })
             ]);
 
-            const shouldRetry = retryIf.includes(response.status) && retries && retries > 0;
+            const shouldRetry = (retries && retryIf.length > 0 && retryIf.includes(response.status)) || (retryIf.length === 0 && retries && retries > 0);
             if (shouldRetry) {
                 await new Promise(resolve => setTimeout(resolve, retryDelay));
                 return this.request({
