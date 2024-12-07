@@ -6,7 +6,7 @@ FetchXY is a lightweight and flexible HTTP client for TypeScript/JavaScript appl
 
 - 🚀 Promise-based HTTP client
 - ⚡ Automatic timeout handling
-- 🔄 Request retries
+- 🔄 Request retries with configurable conditions
 - 📦 TypeScript support
 - 🛠 Configurable defaults
 - 🎯 Simple and intuitive API
@@ -38,14 +38,51 @@ const postResponse = await client.post('https://api.example.com/data', {
 });
 ```
 
-### Configuration
+### Advanced Configuration
 
 ```typescript
 const client = new FetchXY({
-  timeout: 5000, // 5 seconds
+  // Default timeout of 5 seconds
+  timeout: 5000,
+  
+  // Retry failed requests up to 3 times
   retries: 3,
+  
+  // Wait 2 seconds between retries
+  retryDelay: 2000,
+  
+  // Retry on specific HTTP status codes
+  retryIf: [408, 500, 502, 503, 504],
+  
+  // Default headers
   headers: {
     'Authorization': 'Bearer your-token'
+  }
+});
+```
+
+### Retry Configuration Examples
+
+```typescript
+// Retry only on timeout (408) and server errors (500)
+const client = new FetchXY({
+  retries: 2,
+  retryIf: [408, 500]
+});
+
+// Custom retry delay with specific status codes
+const response = await client.get('https://api.example.com/data', {
+  retries: 3,
+  retryDelay: 1000, // 1 second between retries
+  retryIf: [503, 504] // Retry only on service unavailable
+});
+
+// Timeout configuration
+const response = await client.post('https://api.example.com/data', {
+  timeout: 3000, // 3 second timeout
+  retries: 2,    // Retry twice if timeout occurs
+  data: {
+    name: 'John Doe'
   }
 });
 ```
@@ -56,6 +93,7 @@ const client = new FetchXY({
 - `post(url, config)`
 - `put(url, config)`
 - `delete(url, config)`
+- `patch(url, config)`
 
 ## Development
 
