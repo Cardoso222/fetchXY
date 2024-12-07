@@ -22,19 +22,30 @@ npm install fetch-xy
 ### Basic Example
 
 ```typescript
-import { FetchXY } from 'fetch-xy';
+import FetchXY from 'fetch-xy';
 
 const client = new FetchXY();
 
-// Making a GET request
-const response = await client.get('https://api.example.com/data');
+// Make a GET request
+const response = await client.get('https://api.github.com/users/octocat');
+console.log(response);
+// Response will include:
+// {
+//   data: { ... },        // Response data
+//   status: 200,          // HTTP status code
+//   success: true,        // Boolean indicating if status is 2xx
+//   headers: { ... },     // Response headers
+//   attempts: 0,          // Number of retry attempts made
+//   retries: 0,          // Total retries configured
+//   retryDelay: 1000     // Delay between retries in ms
+// }
 
-// Making a POST request
-const postResponse = await client.post('https://api.example.com/data', {
-  data: {
-    name: 'John Doe',
-    email: 'john@example.com'
-  }
+// Make a request with retries
+const responseWithRetries = await client.get('https://api.github.com/users/octocat', {
+  retries: 3,             // Retry up to 3 times
+  timeout: 5000,          // Timeout after 5 seconds
+  retryDelay: 1000,       // Wait 1 second between retries
+  retryIf: [408, 500]     // Only retry on timeout or server error
 });
 ```
 
