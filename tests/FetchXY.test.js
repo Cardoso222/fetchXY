@@ -1,18 +1,20 @@
-const assert = require('assert');
-const { describe, beforeEach, afterEach, it } = require('node:test');
-const FetchXY = require('../dist/index').default;
+import assert from 'assert';
+import { describe, beforeEach, afterEach, it } from 'node:test';
+import FetchXY from '../src/core/FetchXY.js';
 
 describe('FetchXY', () => {
     let originalFetch;
-
+    let client;
     beforeEach(() => {
         // Store the original fetch if it exists
         originalFetch = global.fetch;
+        client = new FetchXY();
     });
 
     afterEach(() => {
         // Restore the original fetch after each test
         global.fetch = originalFetch;
+        client = null;
     });
 
     it('should handle GET requests correctly', async () => {
@@ -26,7 +28,7 @@ describe('FetchXY', () => {
             };
         };
 
-        const response = await FetchXY.get('https://exampleDomain.com');
+        const response = await client.get('https://exampleDomain.com');
         assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
     });
 
@@ -41,7 +43,7 @@ describe('FetchXY', () => {
             };
         };
 
-        const response = await FetchXY.post('https://exampleDomain.com', { data: { fact: 'Cats are awesome' } });
+        const response = await client.post('https://exampleDomain.com', { data: { fact: 'Cats are awesome' } });
         assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
     });
 
@@ -56,7 +58,7 @@ describe('FetchXY', () => {
             };
         };
 
-        const response = await FetchXY.put('https://exampleDomain.com', { data: { fact: 'Cats are awesome' } });
+        const response = await client.put('https://exampleDomain.com', { data: { fact: 'Cats are awesome' } });
         assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
     });
 
@@ -71,7 +73,7 @@ describe('FetchXY', () => {
             };
         };
 
-        const response = await FetchXY.patch('https://exampleDomain.com', { data: { fact: 'Cats are awesome' } });
+        const response = await client.patch('https://exampleDomain.com', { data: { fact: 'Cats are awesome' } });
         assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
     });
 
@@ -86,16 +88,16 @@ describe('FetchXY', () => {
             };
         };
 
-        const response = await FetchXY.delete('https://exampleDomain.com');
+        const response = await client.delete('https://exampleDomain.com');
         assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
     });
 
     it('should handle timeouts correctly', async () => {
         global.fetch = async () => {
-            await new Promise(resolve => setTimeout(resolve, 10000));
+            await new Promise(resolve => setTimeout(resolve, 50));
         };
 
-        const response = await FetchXY.get('https://exampleDomain.com', { timeout: 100 });
+        const response = await client.get('https://exampleDomain.com', { timeout: 10 });
         assert.strictEqual(response.status, 408, 'Incorrect HTTP Status');
         assert.strictEqual(response.data, undefined, 'Incorrect data');
     });
@@ -110,16 +112,16 @@ describe('FetchXY', () => {
         };
 
         const timeBeforeRequest = Date.now();
-        const response = await FetchXY.get('https://exampleDomain.com', { 
+        const response = await client.get('https://exampleDomain.com', { 
             retries: 2, 
-            retryDelay: 3000, 
+            retryDelay: 50,
             retryIf: [500] 
         });
         const timeAfterResponse = Date.now();
         
         assert.strictEqual(response.attempts, 2, 'Incorrect number of attempts');
-        assert.strictEqual(response.retryDelay, 3000, 'Incorrect retry delay');
-        assert.ok(timeAfterResponse - timeBeforeRequest >= 3000, 'Retry delay should be at least 3000ms');
+        assert.strictEqual(response.retryDelay, 50, 'Incorrect retry delay');
+        assert.ok(timeAfterResponse - timeBeforeRequest >= 50, 'Retry delay should be at least 50ms');
     });
 
     it('should handle internal server errors correctly', async () => {
@@ -131,7 +133,7 @@ describe('FetchXY', () => {
             };
         };
 
-        const response = await FetchXY.get('https://exampleDomain.com', { 
+        const response = await client.get('https://exampleDomain.com', { 
             retries: 2, 
             retryIf: [500] 
         });
@@ -150,7 +152,7 @@ describe('FetchXY', () => {
             };
         };
 
-        const response = await FetchXY.get('https://exampleDomain.com', { 
+        const response = await client.get('https://exampleDomain.com', { 
             retries: 2, 
             retryIf: [400] 
         });

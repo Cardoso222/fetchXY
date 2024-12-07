@@ -1,15 +1,19 @@
 {
   "name": "fetch-xy",
-  "version": "0.1.2",
+  "version": "0.2.2",
   "description": "A Fetch API wrapper with some extra features",
-  "main": "index.js",
+  "main": "src/index.js",
+  "type": "module",
   "scripts": {
-    "test": "node tests/FetchXY.test.js",
-    "build": "tsc"
+    "test": "node tests/FetchXY.test.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/cardoso222/FetchXY.git"
+  },
+  "exports": {
+    "types": "./index.d.ts",
+    "default": "./src/core/FetchXY.js"
   },
   "keywords": [
     "fetch",
@@ -19,11 +23,5 @@
   ],
   "author": "Paulo Cardoso",
   "license": "ISC",
-  "devDependencies": {
-    "@types/node": "^22.10.1",
-    "typescript": "^5.7.2"
-  },
-  "dependencies": {
-    "http-status-codes": "^2.3.0"
-  }
+  "types": "index.d.ts"
 }
