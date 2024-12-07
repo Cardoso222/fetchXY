@@ -94,10 +94,10 @@ describe('FetchXY', () => {
 
     it('should handle timeouts correctly', async () => {
         global.fetch = async () => {
-            await new Promise(resolve => setTimeout(resolve, 10000));
+            await new Promise(resolve => setTimeout(resolve, 50));
         };
 
-        const response = await client.get('https://exampleDomain.com', { timeout: 100 });
+        const response = await client.get('https://exampleDomain.com', { timeout: 10 });
         assert.strictEqual(response.status, 408, 'Incorrect HTTP Status');
         assert.strictEqual(response.data, undefined, 'Incorrect data');
     });
@@ -114,14 +114,14 @@ describe('FetchXY', () => {
         const timeBeforeRequest = Date.now();
         const response = await client.get('https://exampleDomain.com', { 
             retries: 2, 
-            retryDelay: 3000, 
+            retryDelay: 50,
             retryIf: [500] 
         });
         const timeAfterResponse = Date.now();
         
         assert.strictEqual(response.attempts, 2, 'Incorrect number of attempts');
-        assert.strictEqual(response.retryDelay, 3000, 'Incorrect retry delay');
-        assert.ok(timeAfterResponse - timeBeforeRequest >= 3000, 'Retry delay should be at least 3000ms');
+        assert.strictEqual(response.retryDelay, 50, 'Incorrect retry delay');
+        assert.ok(timeAfterResponse - timeBeforeRequest >= 50, 'Retry delay should be at least 50ms');
     });
 
     it('should handle internal server errors correctly', async () => {
