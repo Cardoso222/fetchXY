@@ -1,139 +1,159 @@
 const assert = require('assert');
+const { describe, beforeEach, afterEach, it } = require('node:test');
 const FetchXY = require('../dist/index').default;
 
-(async function testRGet() {
-    global.fetch = async (url, options) => {
-        assert.strictEqual(url, 'https://exampleDomain.com', 'Incorrect URL');
-        assert.strictEqual(options.method, 'GET', 'Incorrect HTTP Method');
-        return {
-            json: async () => ({ success: true }),
-            status: 200,
-            headers: new Map(),
+describe('FetchXY', () => {
+    let originalFetch;
+
+    beforeEach(() => {
+        // Store the original fetch if it exists
+        originalFetch = global.fetch;
+    });
+
+    afterEach(() => {
+        // Restore the original fetch after each test
+        global.fetch = originalFetch;
+    });
+
+    it('should handle GET requests correctly', async () => {
+        global.fetch = async (url, options) => {
+            assert.strictEqual(url, 'https://exampleDomain.com', 'Incorrect URL');
+            assert.strictEqual(options.method, 'GET', 'Incorrect HTTP Method');
+            return {
+                json: async () => ({ success: true }),
+                status: 200,
+                headers: new Map(),
+            };
         };
-    };
 
-    const response = await FetchXY.get('https://exampleDomain.com');
-    assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
+        const response = await FetchXY.get('https://exampleDomain.com');
+        assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
+    });
 
-    console.log('✅ GET method test passed!');
-})();
-
-(async function testRPost() {
-    global.fetch = async (url, options) => {
-        assert.strictEqual(options.method, 'POST', 'Incorrect HTTP Method');
-        assert.strictEqual(url, 'https://exampleDomain.com', 'Incorrect URL');
-
-        return {
-            json: async () => ({ success: true }),
-            status: 200,
-            headers: new Map(),
+    it('should handle POST requests correctly', async () => {
+        global.fetch = async (url, options) => {
+            assert.strictEqual(options.method, 'POST', 'Incorrect HTTP Method');
+            assert.strictEqual(url, 'https://exampleDomain.com', 'Incorrect URL');
+            return {
+                json: async () => ({ success: true }),
+                status: 200,
+                headers: new Map(),
+            };
         };
-    };
 
-    const response = await FetchXY.post('https://exampleDomain.com', { data: { fact: 'Cats are awesome' } });
-    assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
+        const response = await FetchXY.post('https://exampleDomain.com', { data: { fact: 'Cats are awesome' } });
+        assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
+    });
 
-    console.log('✅ POST method test passed!');
-})();
-
-(async function testRPut() {
-    global.fetch = async (url, options) => {
-        assert.strictEqual(options.method, 'PUT', 'Incorrect HTTP Method');
-        assert.strictEqual(url, 'https://exampleDomain.com', 'Incorrect URL');
-
-        return {
-            json: async () => ({ success: true }),
-            status: 200,
-            headers: new Map(),
+    it('should handle PUT requests correctly', async () => {
+        global.fetch = async (url, options) => {
+            assert.strictEqual(options.method, 'PUT', 'Incorrect HTTP Method');
+            assert.strictEqual(url, 'https://exampleDomain.com', 'Incorrect URL');
+            return {
+                json: async () => ({ success: true }),
+                status: 200,
+                headers: new Map(),
+            };
         };
-    };
 
-    const response = await FetchXY.put('https://exampleDomain.com', { data: { fact: 'Cats are awesome' } });
-    assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
+        const response = await FetchXY.put('https://exampleDomain.com', { data: { fact: 'Cats are awesome' } });
+        assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
+    });
 
-    console.log('✅ PUT method test passed!');
-})();
-
-(async function testRPatch() {
-    global.fetch = async (url, options) => {
-        assert.strictEqual(options.method, 'PATCH', 'Incorrect HTTP Method');
-        assert.strictEqual(url, 'https://exampleDomain.com', 'Incorrect URL');
-
-        return {
-            json: async () => ({ success: true }),
-            status: 200,
-            headers: new Map(),
+    it('should handle PATCH requests correctly', async () => {
+        global.fetch = async (url, options) => {
+            assert.strictEqual(options.method, 'PATCH', 'Incorrect HTTP Method');
+            assert.strictEqual(url, 'https://exampleDomain.com', 'Incorrect URL');
+            return {
+                json: async () => ({ success: true }),
+                status: 200,
+                headers: new Map(),
+            };
         };
-    };
 
-    const response = await FetchXY.patch('https://exampleDomain.com', { data: { fact: 'Cats are awesome' } });
-    assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
+        const response = await FetchXY.patch('https://exampleDomain.com', { data: { fact: 'Cats are awesome' } });
+        assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
+    });
 
-    console.log('✅ PATCH method test passed!');
-})();
-
-(async function testRDelete() {
-    global.fetch = async (url, options) => {
-        assert.strictEqual(options.method, 'DELETE', 'Incorrect HTTP Method');
-        assert.strictEqual(url, 'https://exampleDomain.com', 'Incorrect URL');
-
-        return {
-            json: async () => ({ success: true }),
-            status: 200,
-            headers: new Map(),
+    it('should handle DELETE requests correctly', async () => {
+        global.fetch = async (url, options) => {
+            assert.strictEqual(options.method, 'DELETE', 'Incorrect HTTP Method');
+            assert.strictEqual(url, 'https://exampleDomain.com', 'Incorrect URL');
+            return {
+                json: async () => ({ success: true }),
+                status: 200,
+                headers: new Map(),
+            };
         };
-    };
 
-    const response = await FetchXY.delete('https://exampleDomain.com');
-    assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
+        const response = await FetchXY.delete('https://exampleDomain.com');
+        assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
+    });
 
-    console.log('✅ DELETE method test passed!');
-})();
-
-(async function testRRetries() {
-
-    global.fetch = async (url, options) => {
-        assert.strictEqual(options.method, 'GET', 'Incorrect HTTP Method');
-        assert.strictEqual(url, 'https://exampleDomain.com', 'Incorrect URL');
-        return {
-            json: async () => ({ success: false }),
-            status: 400,
-            headers: new Map(),
+    it('should handle timeouts correctly', async () => {
+        global.fetch = async () => {
+            await new Promise(resolve => setTimeout(resolve, 10000));
         };
-    };
 
-    const response = await FetchXY.get('https://exampleDomain.com', { retries: 2 });
-    assert.strictEqual(response.retries, 2, 'Incorrect number of retries');
+        const response = await FetchXY.get('https://exampleDomain.com', { timeout: 100 });
+        assert.strictEqual(response.status, 408, 'Incorrect HTTP Status');
+        assert.strictEqual(response.data, undefined, 'Incorrect data');
+    });
 
-    console.log('✅ Retries test passed!');
-})();
-
-(async function testRTimeout() {
-    global.fetch = async (url, options) => {
-        await new Promise(resolve => setTimeout(resolve, 10000));
-    };
-
-    const response = await FetchXY.get('https://exampleDomain.com', { timeout: 100 });
-    assert.strictEqual(response.status, 408, 'Incorrect HTTP Status');
-    assert.strictEqual(response.retries, 0, 'Incorrect number of retries');
-    assert.strictEqual(response.data, undefined, 'Incorrect data');
-
-    console.log('✅ Timeout test passed!');
-})();
-
-(async function testRInternalServerError() {
-    global.fetch = async (url, options) => {
-        return {
-            json: async () => ({ success: false }),
-            status: 500,
-            headers: new Map(),
+    it('should handle retry delays correctly', async () => {
+        global.fetch = async () => {
+            return {
+                json: async () => ({ success: false }),
+                status: 500,
+                headers: new Map(),
+            };
         };
-    };
 
-    const response = await FetchXY.get('https://exampleDomain.com', { retries: 2 });
-    assert.strictEqual(response.status, 500, 'Incorrect HTTP Status');
-    assert.strictEqual(response.retries, 2, 'Incorrect number of retries');
+        const timeBeforeRequest = Date.now();
+        const response = await FetchXY.get('https://exampleDomain.com', { 
+            retries: 2, 
+            retryDelay: 3000, 
+            retryIf: [500] 
+        });
+        const timeAfterResponse = Date.now();
+        
+        assert.strictEqual(response.attempts, 2, 'Incorrect number of attempts');
+        assert.strictEqual(response.retryDelay, 3000, 'Incorrect retry delay');
+        assert.ok(timeAfterResponse - timeBeforeRequest >= 3000, 'Retry delay should be at least 3000ms');
+    });
 
-    console.log('✅ Internal server error test passed!');
-})();
+    it('should handle internal server errors correctly', async () => {
+        global.fetch = async () => {
+            return {
+                json: async () => ({ success: false }),
+                status: 500,
+                headers: new Map(),
+            };
+        };
 
+        const response = await FetchXY.get('https://exampleDomain.com', { 
+            retries: 2, 
+            retryIf: [500] 
+        });
+        assert.strictEqual(response.status, 500, 'Incorrect HTTP Status');
+        assert.strictEqual(response.attempts, 2, 'Incorrect number of attempts');
+    });
+
+    it('should handle retries correctly', async () => {
+        global.fetch = async (url, options) => {
+            assert.strictEqual(options.method, 'GET', 'Incorrect HTTP Method');
+            assert.strictEqual(url, 'https://exampleDomain.com', 'Incorrect URL');
+            return {
+                json: async () => ({ success: false }),
+                status: 400,
+                headers: new Map(),
+            };
+        };
+
+        const response = await FetchXY.get('https://exampleDomain.com', { 
+            retries: 2, 
+            retryIf: [400] 
+        });
+        assert.strictEqual(response.attempts, 2, 'Incorrect number of attempts');
+    });
+});

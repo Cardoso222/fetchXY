@@ -1,4 +1,4 @@
-import { IRequestConfig, IRequestError, IResponse } from "../types";
+import { IRequestConfig, IRequestConfigWithRetries, IRequestError, IResponse } from "../types";
 import { InternalServerError } from "../types/exceptions/InternalServerError";
 import { TimeoutError } from "../types/exceptions/TimeoutError";
 
@@ -9,9 +9,10 @@ export class FetchXY {
         this.defaultConfig = defaultConfig || {};
     }
 
-    async request(config: IRequestConfig): Promise<IResponse | IRequestError> {
-        const finalConfig = {...this.defaultConfig, ...config};
-        const { retries, timeout = 10000 } = finalConfig;
+    async request(config: IRequestConfig | IRequestConfigWithRetries): Promise<IResponse | IRequestError> {
+        const finalConfig = {...this.defaultConfig, ...config} as IRequestConfigWithRetries;
+
+        const { retries, timeout = 10000, retryDelay = 1000, retryIf = [], attempts = 0 } = finalConfig;
 
         try {
             const response = await Promise.race<Response>([
@@ -21,27 +22,37 @@ export class FetchXY {
                     body: finalConfig.data ? JSON.stringify(finalConfig.data) : undefined,
                 }),
                 new Promise((_, reject) => {
-                    setTimeout(() => reject(new TimeoutError('Request timeout', 408, finalConfig.retries || 0)), timeout)
+                    setTimeout(() => reject(new TimeoutError('Request timeout', 408, attempts)), timeout)
                 })
             ]);
+
+            const shouldRetry = retryIf.includes(response.status) && retries && retries > 0;
+            if (shouldRetry) {
+                await new Promise(resolve => setTimeout(resolve, retryDelay));
+                return this.request({...finalConfig, retries: retries - 1, attempts: attempts + 1});
+            }
 
             return {
                 headers: response.headers,
                 status: response.status,
                 data: await response.json(),
+                attempts: attempts,
                 retries: finalConfig.retries || 0,
+                retryDelay: finalConfig.retryDelay || 1000,
                 success: response.status >= 200 && response.status < 300,
             };
         } catch (error) {
-            if (retries && retries > 0) {
-                return this.request({...finalConfig, retries: retries - 1});
-            }
-
             if (error instanceof TimeoutError) {
                 return error;
             }
 
-            return new InternalServerError('Request failed', 500, finalConfig.retries || 0);
+            const shouldRetry = retryIf.includes(500) && retries && retries > 0;
+            if (shouldRetry) {
+                await new Promise(resolve => setTimeout(resolve, retryDelay));
+                return this.request({...finalConfig, retries: retries - 1, attempts: attempts + 1});
+            }
+
+            return new InternalServerError('Request failed', 500, attempts);
         }
     }
 
