@@ -2,18 +2,27 @@
   "name": "fetch-xy",
   "version": "0.2.2",
   "description": "A Fetch API wrapper with some extra features",
-  "main": "src/index.js",
+  "main": "./src/core/FetchXY.js",
   "type": "module",
   "scripts": {
     "test": "node tests/FetchXY.test.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/cardoso222/FetchXY.git"
+    "url": "https://github.com/Cardoso222/fetchXY.git"
   },
   "exports": {
     "types": "./index.d.ts",
     "default": "./src/core/FetchXY.js"
+  },
+  "files": [
+    "src",
+    "index.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
   },
   "keywords": [
     "fetch",
@@ -22,6 +31,6 @@
     "timeout"
   ],
   "author": "Paulo Cardoso",
-  "license": "ISC",
+  "license": "MIT",
   "types": "index.d.ts"
 }
