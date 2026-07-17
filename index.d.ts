@@ -51,7 +51,8 @@ export interface FetchXYResponse<T = any> {
      */
     headers?: Headers;
     /**
-     * HTTP status code
+     * HTTP status code. 408 for timeouts, 0 for network errors
+     * (DNS failure, connection refused, etc.)
      */
     status: number;
     /**

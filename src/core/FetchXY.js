@@ -16,11 +16,17 @@ export default class FetchXY {
         const controller = new AbortController();
         let timeoutId;
 
+        const headers = {...finalConfig.headers};
+        const hasContentType = Object.keys(headers).some(key => key.toLowerCase() === 'content-type');
+        if (finalConfig.data && !hasContentType) {
+            headers['Content-Type'] = 'application/json';
+        }
+
         try {
             const response = await Promise.race([
                 fetch(finalConfig.url, {
                     method: finalConfig.method,
-                    headers: finalConfig.headers,
+                    headers,
                     body: finalConfig.data ? JSON.stringify(finalConfig.data) : undefined,
                     signal: controller.signal,
                 }),
@@ -55,16 +61,23 @@ export default class FetchXY {
             };
 
             if (response.status !== 204) {
-                result.data = await response.json();
+                try {
+                    result.data = await response.json();
+                } catch {
+                    // Response body is empty or not valid JSON; leave data undefined
+                }
             }
 
             return result;
 
         } catch (error) {
             const isTimeout = error.message === 'Request timeout' || error.name === 'AbortError';
-            const status = isTimeout ? 408 : 500;
 
-            const shouldRetry = retries > 0 && (retryIf.length === 0 || retryIf.includes(status));
+            // Timeouts are retried when retryIf is empty or includes 408.
+            // Network errors have no HTTP status, so they are always
+            // considered transient and retried while retries remain.
+            const shouldRetry = retries > 0 &&
+                (isTimeout ? (retryIf.length === 0 || retryIf.includes(408)) : true);
             if (shouldRetry) {
                 await new Promise(resolve => setTimeout(resolve, retryDelay));
                 return this.request({
@@ -75,11 +88,11 @@ export default class FetchXY {
             }
 
             return {
-                status,
+                status: isTimeout ? 408 : 0,
                 attempts,
                 retries: retries + attempts,
                 retryDelay,
-                message: isTimeout ? 'Request timeout' : 'Internal server error',
+                message: isTimeout ? 'Request timeout' : error.message,
                 success: false
             };
         } finally {
