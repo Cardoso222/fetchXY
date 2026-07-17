@@ -1,6 +1,6 @@
 {
   "name": "fetch-xy",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "A Fetch API wrapper with some extra features",
   "main": "./src/core/FetchXY.js",
   "type": "module",
