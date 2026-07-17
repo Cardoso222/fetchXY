@@ -110,29 +110,18 @@ const response = await client.post('https://api.example.com/data', {
 
 ### Prerequisites
 
-- Node.js (v20 or higher)
-- npm or yarn
+- Node.js (v18 or higher)
 
 ### Setting Up the Development Environment
 
-1. Clone the repository:
+Clone the repository:
 
 ```bash
-git clone https://github.com/cardoso222/FetchXY.git
-cd FetchXY
+git clone https://github.com/Cardoso222/fetchXY.git
+cd fetchXY
 ```
 
-2. Install dependencies:
-
-```bash
-npm install
-```
-
-3. Build the project:
-
-```bash
-npm run build
-```
+The project has no runtime dependencies and no build step, so you're ready to go.
 
 ### Running Tests
 
