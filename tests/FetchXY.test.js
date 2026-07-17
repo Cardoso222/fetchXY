@@ -152,10 +152,125 @@ describe('FetchXY', () => {
             };
         };
 
-        const response = await client.get('https://exampleDomain.com', { 
-            retries: 2, 
-            retryIf: [400] 
+        const response = await client.get('https://exampleDomain.com', {
+            retries: 2,
+            retryIf: [400]
         });
         assert.strictEqual(response.attempts, 2, 'Incorrect number of attempts');
+    });
+
+    it('should not retry successful responses when retryIf is empty', async () => {
+        let fetchCalls = 0;
+        global.fetch = async () => {
+            fetchCalls++;
+            return {
+                json: async () => ({ success: true }),
+                status: 200,
+                headers: new Map(),
+            };
+        };
+
+        const response = await client.get('https://exampleDomain.com', {
+            retries: 3,
+            retryDelay: 10
+        });
+        assert.strictEqual(fetchCalls, 1, 'Should not retry a successful response');
+        assert.strictEqual(response.attempts, 0, 'Incorrect number of attempts');
+        assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
+        assert.strictEqual(response.success, true, 'Incorrect success flag');
+    });
+
+    it('should retry failed responses when retryIf is empty', async () => {
+        let fetchCalls = 0;
+        global.fetch = async () => {
+            fetchCalls++;
+            return {
+                json: async () => ({ success: false }),
+                status: 503,
+                headers: new Map(),
+            };
+        };
+
+        const response = await client.get('https://exampleDomain.com', {
+            retries: 2,
+            retryDelay: 10
+        });
+        assert.strictEqual(fetchCalls, 3, 'Should retry until retries are exhausted');
+        assert.strictEqual(response.attempts, 2, 'Incorrect number of attempts');
+        assert.strictEqual(response.status, 503, 'Incorrect HTTP Status');
+    });
+
+    it('should stop retrying as soon as a request succeeds', async () => {
+        let fetchCalls = 0;
+        global.fetch = async () => {
+            fetchCalls++;
+            return {
+                json: async () => ({}),
+                status: fetchCalls < 2 ? 500 : 200,
+                headers: new Map(),
+            };
+        };
+
+        const response = await client.get('https://exampleDomain.com', {
+            retries: 5,
+            retryDelay: 10,
+            retryIf: [500]
+        });
+        assert.strictEqual(fetchCalls, 2, 'Should stop retrying after success');
+        assert.strictEqual(response.status, 200, 'Incorrect HTTP Status');
+        assert.strictEqual(response.attempts, 1, 'Incorrect number of attempts');
+    });
+
+    it('should retry on timeout', async () => {
+        let fetchCalls = 0;
+        global.fetch = async () => {
+            fetchCalls++;
+            await new Promise(resolve => setTimeout(resolve, 50));
+        };
+
+        const response = await client.get('https://exampleDomain.com', {
+            timeout: 10,
+            retries: 2,
+            retryDelay: 10,
+            retryIf: [408]
+        });
+        assert.strictEqual(fetchCalls, 3, 'Should retry timed out requests');
+        assert.strictEqual(response.status, 408, 'Incorrect HTTP Status');
+        assert.strictEqual(response.attempts, 2, 'Incorrect number of attempts');
+    });
+
+    it('should not retry on timeout when retryIf excludes 408', async () => {
+        let fetchCalls = 0;
+        global.fetch = async () => {
+            fetchCalls++;
+            await new Promise(resolve => setTimeout(resolve, 50));
+        };
+
+        const response = await client.get('https://exampleDomain.com', {
+            timeout: 10,
+            retries: 2,
+            retryDelay: 10,
+            retryIf: [500]
+        });
+        assert.strictEqual(fetchCalls, 1, 'Should not retry when 408 is not in retryIf');
+        assert.strictEqual(response.status, 408, 'Incorrect HTTP Status');
+    });
+
+    it('should report the originally configured number of retries', async () => {
+        global.fetch = async () => {
+            return {
+                json: async () => ({}),
+                status: 500,
+                headers: new Map(),
+            };
+        };
+
+        const response = await client.get('https://exampleDomain.com', {
+            retries: 3,
+            retryDelay: 10,
+            retryIf: [500]
+        });
+        assert.strictEqual(response.retries, 3, 'Should report the original retries value');
+        assert.strictEqual(response.attempts, 3, 'Incorrect number of attempts');
     });
 });

@@ -5,13 +5,16 @@ export default class FetchXY {
 
     async request(config) {
         const finalConfig = {...this.defaultConfig, ...config};
-        const { 
-            retries, 
-            timeout = 10000, 
-            retryDelay = 1000, 
-            retryIf = [], 
-            attempts = 0 
+        const {
+            retries = 0,
+            timeout = 10000,
+            retryDelay = 1000,
+            retryIf = [],
+            attempts = 0
         } = finalConfig;
+
+        const controller = new AbortController();
+        let timeoutId;
 
         try {
             const response = await Promise.race([
@@ -19,18 +22,25 @@ export default class FetchXY {
                     method: finalConfig.method,
                     headers: finalConfig.headers,
                     body: finalConfig.data ? JSON.stringify(finalConfig.data) : undefined,
+                    signal: controller.signal,
                 }),
                 new Promise((_, reject) => {
-                    setTimeout(() => reject(new Error('Request timeout')), timeout);
+                    timeoutId = setTimeout(() => {
+                        controller.abort();
+                        reject(new Error('Request timeout'));
+                    }, timeout);
                 })
             ]);
 
-            const shouldRetry = (retries && retryIf.length > 0 && retryIf.includes(response.status)) || (retryIf.length === 0 && retries && retries > 0);
+            const success = response.status >= 200 && response.status < 300;
+            const shouldRetry = retries > 0 && (retryIf.length > 0
+                ? retryIf.includes(response.status)
+                : !success);
             if (shouldRetry) {
                 await new Promise(resolve => setTimeout(resolve, retryDelay));
                 return this.request({
-                    ...finalConfig, 
-                    retries: retries - 1, 
+                    ...finalConfig,
+                    retries: retries - 1,
                     attempts: attempts + 1
                 });
             }
@@ -39,9 +49,9 @@ export default class FetchXY {
                 headers: response.headers,
                 status: response.status,
                 attempts,
-                retries: finalConfig.retries || 0,
-                retryDelay: finalConfig.retryDelay || 1000,
-                success: response.status >= 200 && response.status < 300
+                retries: retries + attempts,
+                retryDelay,
+                success
             };
 
             if (response.status !== 204) {
@@ -51,31 +61,29 @@ export default class FetchXY {
             return result;
 
         } catch (error) {
-            if (error.message === 'Request timeout') {
-                return {
-                    status: 408,
-                    attempts,
-                    message: 'Request timeout',
-                    success: false
-                };
-            }
+            const isTimeout = error.message === 'Request timeout' || error.name === 'AbortError';
+            const status = isTimeout ? 408 : 500;
 
-            const shouldRetry = retryIf.includes(500) && retries && retries > 0;
+            const shouldRetry = retries > 0 && (retryIf.length === 0 || retryIf.includes(status));
             if (shouldRetry) {
                 await new Promise(resolve => setTimeout(resolve, retryDelay));
                 return this.request({
-                    ...finalConfig, 
-                    retries: retries - 1, 
+                    ...finalConfig,
+                    retries: retries - 1,
                     attempts: attempts + 1
                 });
             }
 
             return {
-                status: 500,
+                status,
                 attempts,
-                message: 'Internal server error',
+                retries: retries + attempts,
+                retryDelay,
+                message: isTimeout ? 'Request timeout' : 'Internal server error',
                 success: false
             };
+        } finally {
+            clearTimeout(timeoutId);
         }
     }
 
